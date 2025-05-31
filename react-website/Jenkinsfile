@@ -51,6 +51,13 @@ pipeline {
                 }
             }
         }
+
+        stage('Debug Branch') {
+            steps {
+                sh 'echo "Current branch: ${BRANCH_NAME}"'
+                sh 'git branch -a'
+            }
+        }
         
         stage('Push to Registry') {
             when {
