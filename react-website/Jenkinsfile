@@ -71,8 +71,18 @@ pipeline {
                 branch 'master'
             }
             steps {
-                echo 'Deploying application...'
-                // Add your deployment steps here
+                script {
+                    // Stop and remove existing container
+                    sh 'docker stop react-website || true'
+                    sh 'docker rm react-website || true'
+                    
+                    // Run new container
+                    sh 'docker run -d --name react-website -p 3000:80 react-website:latest'
+                    
+                    // Verify deployment
+                    sh 'sleep 5'
+                    sh 'docker ps | grep react-website'
+                }
             }
         }
     }
