@@ -19,6 +19,12 @@ pipeline {
             }
         }
         
+        stage('Install pnpm') {
+            steps {
+                sh 'npm install -g pnpm'
+            }
+        }
+        
         stage('Install Dependencies') {
             steps {
                 dir('react-website') {
@@ -30,7 +36,7 @@ pipeline {
         stage('Build React App') {
             steps {
                 dir('react-website') {
-                    sh 'npm run build'
+                    sh 'pnpm run build'
                 }
             }
         }
