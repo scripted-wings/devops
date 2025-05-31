@@ -22,7 +22,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 dir('react-website') {
-                    sh 'npm ci'
+                    sh 'pnpm install --frozen-lockfile'
                 }
             }
         }
