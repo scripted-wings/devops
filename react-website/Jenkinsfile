@@ -51,18 +51,8 @@ pipeline {
                 }
             }
         }
-
-        stage('Debug Branch') {
-            steps {
-                sh 'echo "Current branch: ${BRANCH_NAME}"'
-                sh 'git branch -a'
-            }
-        }
         
         stage('Push to Registry') {
-            when {
-                branch 'master'
-            }
             steps {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
@@ -74,9 +64,6 @@ pipeline {
         }
         
         stage('Deploy') {
-            when {
-                branch 'master'
-            }
             steps {
                 script {
                     // Stop and remove existing container
