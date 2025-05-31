@@ -1,0 +1,85 @@
+pipeline {
+    agent any
+    
+    tools {
+        nodejs 'node22'
+        dockerTool 'docker'
+    }
+    
+    environment {
+        IMAGE_NAME = 'react-website'
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        DOCKER_REGISTRY = 'harrsh'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Install Dependencies') {
+            steps {
+                dir('react-website') {
+                    sh 'npm ci'
+                }
+            }
+        }
+        
+        stage('Build React App') {
+            steps {
+                dir('react-website') {
+                    sh 'npm run build'
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                dir('react-website') {
+                    script {
+                        docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
+                        docker.build("${IMAGE_NAME}:latest")
+                    }
+                }
+            }
+        }
+        
+        stage('Push to Registry') {
+            when {
+                branch 'master'
+            }
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
+                        docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
+                        docker.image("${IMAGE_NAME}:latest").push()
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            when {
+                branch 'master'
+            }
+            steps {
+                echo 'Deploying application...'
+                // Add your deployment steps here
+            }
+        }
+    }
+    
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}
